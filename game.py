@@ -1,9 +1,11 @@
 import pygame
 import random
-import math
+import colours
 from Player import Player
 from Blob import Blob
 from Bot import Bot
+from Bot_Generator import Bot_Generator
+
 
 # Initialize Pygame
 pygame.init()
@@ -23,7 +25,7 @@ MAP_SIZE = 3000
 
 # Constants for player attributes
 PLAYER_RADIUS = 20
-PLAYER_COLOR = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+PLAYER_COLOR = colours.player()
 PLAYER_SPEED = 6
 PLAYER_LABEL = "Joe"
 
@@ -32,10 +34,8 @@ player_x = MAP_SIZE / 2
 player_y = MAP_SIZE / 2
 plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
 
-# Create a bot
-bot_x = random.uniform(0, MAP_SIZE)
-bot_y = random.uniform(0, MAP_SIZE)
-bot1 = Bot(bot_x, bot_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, "Ridley")
+# Create bots
+bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
 
 # Generate collectible blobs -- will move to the while loop eventually
 BLOB_COUNT = 600 # Maximum number of blobs
@@ -45,7 +45,7 @@ for _ in range(BLOB_COUNT):
     bx = random.uniform(0, MAP_SIZE)
     by = random.uniform(0, MAP_SIZE)
     br = random.uniform(4, 10)
-    bc = (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))
+    bc = colours.blob()
     blob = Blob(bx, by, br, bc)
     blobs.append(blob)
 
@@ -93,23 +93,30 @@ while running:
     plr.move(dx, dy, MAP_SIZE)
 
     # Bot movement
-    closest_blob = bot1.search_blob(blobs)
-    bot1.move_to_blob(closest_blob, MAP_SIZE)
+    closest_blob = bots[0].search_blob(blobs)
+    for bot in bots:
+        closest_blob = bot.search_blob(blobs)
+        bot.move_to_blob(closest_blob, MAP_SIZE)
 
-    # Check collision with blobs
-    to_remove = []
+    # Check if blob has been eaten already for optimisation
+    eaten_blobs = set()
     for i, blob in enumerate(blobs):
-        if plr.can_eat_blob(blob):
+        if i in eaten_blobs:
+            continue
+        elif plr.can_eat_blob(blob):
             plr.eat_blob(blob)
-            to_remove.append(i)
+            eaten_blobs.add(i)
         
-        if bot1.can_eat_blob(blob):
-            bot1.eat_blob(blob)
-            to_remove.append(i)
+        # Check if bots can eat blob
+        for bot in bots:
+            if i in eaten_blobs:
+                break
+            elif bot.can_eat_blob(blob):
+                bot.eat_blob(blob)
+                eaten_blobs.add(i)
 
-    # Remove eaten blobs - note that blobs are removed this way to maintain indexing
-    for i in reversed(to_remove):
-        del blobs[i]
+    # Remove eaten blobs
+    blobs = [blob for i, blob in enumerate(blobs) if i not in eaten_blobs]
 
     # Calculate offsets to center player
     offset_x = SCREEN_WIDTH / 2 - plr.x
@@ -147,8 +154,10 @@ while running:
     # Draw player
     #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
     plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-    bot1.draw(screen, pygame.font.SysFont("monospace", 16), bot1.x + offset_x, bot1.y + offset_y)
-    print(plr.x, plr.y, bot1.x, bot1.y)
+    
+    for bot in bots:
+        bot.draw(screen, pygame.font.SysFont("monospace", 16), bot.x + offset_x, bot.y + offset_y)
+    
     
     # Update display
     pygame.display.flip()

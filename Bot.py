@@ -11,7 +11,7 @@ class Bot(Player):
         super().move(dx, dy, map_size)
     
     def draw(self, screen, font, x, y):
-        pygame.draw.circle(screen, self.colour, (int(x), int(y)), self.radius)
+        super().draw(screen, font, x, y)
 
     def can_eat_blob(self, blob):
         return super().can_eat_blob(blob)
@@ -37,7 +37,7 @@ class Bot(Player):
             direction_x = distance_x / distance
             direction_y = distance_y / distance
         
-        dx = direction_x * self.speed * (10 / self.radius)
-        dy = direction_y * self.speed * (10 / self.radius)
+        dx = direction_x * self.speed * (25 / self.radius)
+        dy = direction_y * self.speed * (25 / self.radius)
         super().move(dx, dy, map_size)
 
