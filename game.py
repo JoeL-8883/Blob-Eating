@@ -3,6 +3,7 @@ import random
 import math
 from Player import Player
 from Blob import Blob
+from Bot import Bot
 
 # Initialize Pygame
 pygame.init()
@@ -23,7 +24,7 @@ MAP_SIZE = 3000
 # Constants for player attributes
 PLAYER_RADIUS = 20
 PLAYER_COLOR = (255, 255, 255)  # white
-PLAYER_SPEED = 3.0
+PLAYER_SPEED = 10
 PLAYER_LABEL = "Joe"
 
 # Create a player
@@ -31,8 +32,13 @@ player_x = MAP_SIZE / 2
 player_y = MAP_SIZE / 2
 plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
 
-# Generate collectible blobs
-BLOB_COUNT = 200
+# Create a bot
+bot_x = random.uniform(0, MAP_SIZE)
+bot_y = random.uniform(0, MAP_SIZE)
+bot1 = Bot(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, 5, "Ridley")
+
+# Generate collectible blobs -- will move to the while loop eventually
+BLOB_COUNT = 200 # Maximum number of blobs
 blobs = []
 for _ in range(BLOB_COUNT):
     # Create a blob
@@ -84,24 +90,21 @@ while running:
         dx += plr.speed * (20 / plr.radius)
 
     # Update player position
-    plr.move(dx, dy)
+    plr.move(dx, dy, MAP_SIZE)
 
-    # Constrain player to map boundaries
-    if plr.x < plr.radius:
-        plr.x = plr.radius
-    if plr.y < plr.radius:
-        plr.y = plr.radius
-    if plr.x > MAP_SIZE - plr.radius:
-        plr.x = MAP_SIZE - plr.radius
-    if plr.y > MAP_SIZE - plr.radius:
-        plr.y = MAP_SIZE - plr.radius
+    # Bot movement
+    closest_blob = bot1.search_blob(blobs)
+    bot1.move_to_blob(closest_blob, MAP_SIZE)
 
     # Check collision with blobs
-    # Distance-based collision for circles
     to_remove = []
     for i, blob in enumerate(blobs):
         if plr.can_eat_blob(blob):
             plr.eat_blob(blob)
+            to_remove.append(i)
+        
+        if bot1.can_eat_blob(blob):
+            bot1.eat_blob(blob)
             to_remove.append(i)
 
     # Remove eaten blobs - note that blobs are removed this way to maintain indexing
@@ -125,8 +128,11 @@ while running:
         pygame.draw.circle(screen, blob.colour, (int(blob.x + offset_x), int(blob.y + offset_y)), int(blob.radius))
 
     # Draw player
-    pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
-
+    #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
+    plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH, SCREEN_HEIGHT)
+    bot1.draw(screen, pygame.font.SysFont("monospace", 16), bot1.x + offset_x, bot1.y + offset_y)
+    print(plr.x, plr.y, bot1.x, bot1.y)
+    
     # Update display
     pygame.display.flip()
 

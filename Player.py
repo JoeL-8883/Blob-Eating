@@ -11,13 +11,22 @@ class Player:
         self.speed = speed
         self.name = name
     
-    def move(self, dx, dy):
+    def move(self, dx, dy, map_size):
         self.x += dx
         self.y += dy
-    
-    def draw(self, screen, font):
-        pygame.draw.circle(screen, self.colour, (self.x, self.y), self.radius)
-        label_surface = font.render(self.name, True, (255, 255, 255))
+
+        if self.x < self.radius:
+            self.x = self.radius
+        if self.y < self.radius:
+            self.y = self.radius
+        if self.x > map_size - self.radius:
+            self.x = map_size - self.radius
+        if self.y > map_size - self.radius:
+            self.y = map_size - self.radius
+
+    def draw(self, screen, font, x, y):
+        pygame.draw.circle(screen, self.colour, (int(x/2), int(y/2)), self.radius)
+        label_surface = font.render(self.name, True, (0, 0, 0))
         screen.blit(label_surface, (self.x - self.radius, self.y - self.radius - 20))
     
     def distance(self, x, y):
