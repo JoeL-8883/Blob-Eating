@@ -25,9 +25,11 @@ class Player:
             self.y = map_size - self.radius
 
     def draw(self, screen, font, x, y):
-        pygame.draw.circle(screen, self.colour, (int(x/2), int(y/2)), self.radius)
+        pygame.draw.circle(screen, self.colour, (x, y), self.radius-1)
+        outer_c = (self.colour[0] - 10, self.colour[1] - 10, self.colour[2] - 10)
+        pygame.draw.circle(screen, outer_c, (x, y), self.radius, 4) # Outer circle
         label_surface = font.render(self.name, True, (0, 0, 0))
-        screen.blit(label_surface, (self.x - self.radius, self.y - self.radius - 20))
+        screen.blit(label_surface, (x, y))
     
     def distance(self, x, y):
         return math.sqrt((self.x - x) ** 2 + (self.y - y) ** 2)

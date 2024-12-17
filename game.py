@@ -23,8 +23,8 @@ MAP_SIZE = 3000
 
 # Constants for player attributes
 PLAYER_RADIUS = 20
-PLAYER_COLOR = (255, 255, 255)  # white
-PLAYER_SPEED = 10
+PLAYER_COLOR = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+PLAYER_SPEED = 6
 PLAYER_LABEL = "Joe"
 
 # Create a player
@@ -35,10 +35,10 @@ plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAY
 # Create a bot
 bot_x = random.uniform(0, MAP_SIZE)
 bot_y = random.uniform(0, MAP_SIZE)
-bot1 = Bot(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, 5, "Ridley")
+bot1 = Bot(bot_x, bot_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, "Ridley")
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 200 # Maximum number of blobs
+BLOB_COUNT = 600 # Maximum number of blobs
 blobs = []
 for _ in range(BLOB_COUNT):
     # Create a blob
@@ -81,13 +81,13 @@ while running:
     # Move the player
     dx = dy = 0
     if move_up:
-        dy -= plr.speed * (20 / plr.radius)  # Slow down as player grows
+        dy -= plr.speed * (25 / plr.radius)  # Slow down as player grows
     if move_down:
-        dy += plr.speed * (20 / plr.radius)
+        dy += plr.speed * (25 / plr.radius)
     if move_left:
-        dx -= plr.speed * (20 / plr.radius)
+        dx -= plr.speed * (25 / plr.radius)
     if move_right:
-        dx += plr.speed * (20 / plr.radius)
+        dx += plr.speed * (25 / plr.radius)
 
     # Update player position
     plr.move(dx, dy, MAP_SIZE)
@@ -111,12 +111,29 @@ while running:
     for i in reversed(to_remove):
         del blobs[i]
 
-    # DRAWING
-    screen.fill((50, 50, 50))  # background
-
     # Calculate offsets to center player
     offset_x = SCREEN_WIDTH / 2 - plr.x
     offset_y = SCREEN_HEIGHT / 2 - plr.y
+
+    # DRAWING
+    screen.fill((240, 240, 240))  # background
+
+    grid_color = (220, 220, 220)  # Light gray
+    grid_spacing = 100  # Space between grid lines
+
+    # Vertical lines
+    for x in range(0, MAP_SIZE, grid_spacing):
+        pygame.draw.line(screen, grid_color, 
+                        (x + offset_x, offset_y), 
+                        (x + offset_x, MAP_SIZE + offset_y))
+
+    # Horizontal lines
+    for y in range(0, MAP_SIZE, grid_spacing):
+        pygame.draw.line(screen, grid_color,
+                        (offset_x, y + offset_y),
+                        (MAP_SIZE + offset_x, y + offset_y))
+
+
 
     # Draw map boundary (optional visualization)
     # Just draw a large rectangle representing the map boundary
@@ -129,7 +146,7 @@ while running:
 
     # Draw player
     #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
-    plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH, SCREEN_HEIGHT)
+    plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     bot1.draw(screen, pygame.font.SysFont("monospace", 16), bot1.x + offset_x, bot1.y + offset_y)
     print(plr.x, plr.y, bot1.x, bot1.y)
     
