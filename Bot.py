@@ -3,9 +3,10 @@ import math
 import pygame
 
 class Bot(Player):
-    def __init__(self, x, y, radius, colour, speed, name):
+    def __init__(self, x, y, radius, colour, speed, name, visbility=0):
         super().__init__(x, y, radius, colour, speed, name)
         self.size = math.pi * self.radius ** 2
+        self.visibility = visbility
 
     def move(self, dx, dy, map_size):
         super().move(dx, dy, map_size)

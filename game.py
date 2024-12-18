@@ -5,6 +5,7 @@ from Player import Player
 from Blob import Blob
 from Bot import Bot
 from Bot_Generator import Bot_Generator
+from Blob_Generator import Blob_Generator
 
 
 # Initialize Pygame
@@ -39,15 +40,8 @@ bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
 
 # Generate collectible blobs -- will move to the while loop eventually
 BLOB_COUNT = 600 # Maximum number of blobs
-blobs = []
-for _ in range(BLOB_COUNT):
-    # Create a blob
-    bx = random.uniform(0, MAP_SIZE)
-    by = random.uniform(0, MAP_SIZE)
-    br = random.uniform(4, 10)
-    bc = colours.blob()
-    blob = Blob(bx, by, br, bc)
-    blobs.append(blob)
+blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
+blobs_list = blobs.get_blobs()
 
 # Movement keys state
 move_up = move_down = move_left = move_right = False
@@ -93,14 +87,14 @@ while running:
     plr.move(dx, dy, MAP_SIZE)
 
     # Bot movement
-    closest_blob = bots[0].search_blob(blobs)
+    closest_blob = bots[0].search_blob(blobs_list)
     for bot in bots:
-        closest_blob = bot.search_blob(blobs)
+        closest_blob = bot.search_blob(blobs_list)
         bot.move_to_blob(closest_blob, MAP_SIZE)
 
     # Check if blob has been eaten already for optimisation
     eaten_blobs = set()
-    for i, blob in enumerate(blobs):
+    for i, blob in enumerate(blobs_list):
         if i in eaten_blobs:
             continue
         elif plr.can_eat_blob(blob):
@@ -116,7 +110,8 @@ while running:
                 eaten_blobs.add(i)
 
     # Remove eaten blobs
-    blobs = [blob for i, blob in enumerate(blobs) if i not in eaten_blobs]
+    remove_blobs = [blob for i, blob in enumerate(blobs_list) if i not in eaten_blobs]
+    
 
     # Calculate offsets to center player
     offset_x = SCREEN_WIDTH / 2 - plr.x
@@ -148,9 +143,9 @@ while running:
     pygame.draw.rect(screen, boundary_color, (offset_x, offset_y, MAP_SIZE, MAP_SIZE), 2)
 
     # Draw blobs
-    for blob in blobs:
-        pygame.draw.circle(screen, blob.colour, (int(blob.x + offset_x), int(blob.y + offset_y)), int(blob.radius))
-
+    for blob in blobs_list:
+        pygame.draw.circle(screen, blob.colour, (blob.x + offset_x, blob.y + offset_y), int(blob.radius))
+    
     # Draw player
     #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
     plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
