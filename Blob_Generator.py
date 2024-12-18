@@ -29,7 +29,7 @@ class Blob_Generator:
     # Generate a random number of blobs after blobs have been eaten
     def add_blobs(self):
         if len(self.blobs) < self.limit:
-            n = random.randint(10, 20)
+            n = random.randint(0, 2)
             self.create(self.map_size, n)
 
     def draw_blobs(self):

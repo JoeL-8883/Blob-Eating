@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 MAP_SIZE = 3000
 
 # Constants for player attributes
-PLAYER_RADIUS = 20
+PLAYER_RADIUS = 30
 PLAYER_COLOR = colours.player()
 PLAYER_SPEED = 7.5
 PLAYER_LABEL = "Joe"
@@ -39,7 +39,7 @@ plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAY
 bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 300 # Maximum number of blobs
+BLOB_COUNT = 800 # Maximum number of blobs
 EATEN = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
 
@@ -101,7 +101,7 @@ while running:
         if i in eaten_blobs:
             continue
         elif plr.can_eat_blob(blob):
-            plr.eat_blob(blob)
+            plr.eat(blob)
             EATEN += 1
             eaten_blobs.append(i)
         
@@ -110,13 +110,13 @@ while running:
             if i in eaten_blobs:
                 break
             elif bot.can_eat_blob(blob):
-                bot.eat_blob(blob)
+                bot.eat(blob)
                 EATEN += 1
                 eaten_blobs.append(i)
 
     for bot in bots:
         if plr.can_eat_player(bot):
-            plr.eat_player(bot)
+            plr.eat(bot)
             print("Player has eaten a bot")
             bots.kill_bot(bot)
             break
@@ -165,10 +165,10 @@ while running:
     
     # Draw player
     #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
-    plr.draw(screen, pygame.font.SysFont("monospace", 16), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    plr.draw(screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     
     for bot in bots:
-        bot.draw(screen, pygame.font.SysFont("monospace", 16), bot.x + offset_x, bot.y + offset_y)
+        bot.draw(screen, bot.x + offset_x, bot.y + offset_y)
     
     
     # Update display

@@ -11,8 +11,8 @@ class Bot(Player):
     def move(self, dx, dy, map_size):
         super().move(dx, dy, map_size)
     
-    def draw(self, screen, font, x, y):
-        super().draw(screen, font, x, y)
+    def draw(self, screen, x, y):
+        super().draw(screen, x, y)
 
     def can_eat_blob(self, blob):
         return super().can_eat_blob(blob)
@@ -45,4 +45,5 @@ class Bot(Player):
         dy = direction_y * self.speed * (25 / self.radius)
         
         super().move(dx, dy, map_size)
+
 
