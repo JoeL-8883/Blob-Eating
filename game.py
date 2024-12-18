@@ -27,7 +27,7 @@ MAP_SIZE = 3000
 # Constants for player attributes
 PLAYER_RADIUS = 20
 PLAYER_COLOR = colours.player()
-PLAYER_SPEED = 10
+PLAYER_SPEED = 7.5
 PLAYER_LABEL = "Joe"
 
 # Create a player
@@ -113,6 +113,13 @@ while running:
                 bot.eat_blob(blob)
                 EATEN += 1
                 eaten_blobs.append(i)
+
+    for bot in bots:
+        if plr.can_eat_player(bot):
+            plr.eat_player(bot)
+            print("Player has eaten a bot")
+            bots.kill_bot(bot)
+            break
 
     if len(eaten_blobs) > 0:
         # Remove eaten blobs

@@ -30,15 +30,19 @@ class Bot(Player):
         return closest_blob
     
     def move_to_blob(self, closest_blob, map_size):
+        # Get the distance between the bot and the closest blob
         distance_x = closest_blob.x - self.x
         distance_y = closest_blob.y - self.y
         distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
+        # Normalise distance to get direction vector
         if distance != 0:
             direction_x = distance_x / distance
             direction_y = distance_y / distance
         
+        # Velocity vector to move bot towards blob
         dx = direction_x * self.speed * (25 / self.radius)
         dy = direction_y * self.speed * (25 / self.radius)
+        
         super().move(dx, dy, map_size)
 

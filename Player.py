@@ -37,8 +37,17 @@ class Player:
     def can_eat_blob(self, blob):
         if self.distance(blob.x, blob.y) < self.radius + blob.radius:
             return True
+
+    def can_eat_player(self, player):
+        if self.distance(player.x, player.y) < self.radius and (self.size > player.size * 1.25):
+            return True
     
     def eat_blob(self, blob):
         self.size += blob.size
         self.radius = math.sqrt(self.size / math.pi)
+
+    def eat_player(self, player):
+        self.size += player.size
+        self.radius = math.sqrt(self.size / math.pi)
+
         

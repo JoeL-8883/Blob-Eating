@@ -10,6 +10,9 @@ class Bot_Generator:
     
     def __getitem__(self, index):
         return self.bots[index]
+    
+    def get_bots(self):
+        return self
 
     '''Generate the bots in random positions'''
     def generate_bots(self, radius, speed, map_size):
@@ -19,3 +22,7 @@ class Bot_Generator:
             colour = colours.player()
             bot = Bot(bot_x, bot_y, radius, colour, speed, "Ridley")
             self.bots.append(bot)
+    
+    def kill_bot(self, bot):
+        self.bots.remove(bot)
+        self.num_bots -= 1
