@@ -27,7 +27,7 @@ MAP_SIZE = 3000
 # Constants for player attributes
 PLAYER_RADIUS = 20
 PLAYER_COLOR = colours.player()
-PLAYER_SPEED = 6
+PLAYER_SPEED = 10
 PLAYER_LABEL = "Joe"
 
 # Create a player
@@ -39,9 +39,9 @@ plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAY
 bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 600 # Maximum number of blobs
+BLOB_COUNT = 300 # Maximum number of blobs
+EATEN = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
-blobs_list = blobs.get_blobs()
 
 # Movement keys state
 move_up = move_down = move_left = move_right = False
@@ -72,6 +72,9 @@ while running:
             if event.key in (pygame.K_d, pygame.K_RIGHT):
                 move_right = False
 
+    blobs_list = blobs.get_blobs() # Find a way to make this better?
+
+
     # Move the player
     dx = dy = 0
     if move_up:
@@ -93,13 +96,14 @@ while running:
         bot.move_to_blob(closest_blob, MAP_SIZE)
 
     # Check if blob has been eaten already for optimisation
-    eaten_blobs = set()
+    eaten_blobs = []
     for i, blob in enumerate(blobs_list):
         if i in eaten_blobs:
             continue
         elif plr.can_eat_blob(blob):
             plr.eat_blob(blob)
-            eaten_blobs.add(i)
+            EATEN += 1
+            eaten_blobs.append(i)
         
         # Check if bots can eat blob
         for bot in bots:
@@ -107,11 +111,17 @@ while running:
                 break
             elif bot.can_eat_blob(blob):
                 bot.eat_blob(blob)
-                eaten_blobs.add(i)
+                EATEN += 1
+                eaten_blobs.append(i)
 
-    # Remove eaten blobs
-    remove_blobs = [blob for i, blob in enumerate(blobs_list) if i not in eaten_blobs]
-    
+    if len(eaten_blobs) > 0:
+        # Remove eaten blobs
+        while len(eaten_blobs) > 0:
+            i = eaten_blobs.pop()
+            blobs_list.pop(i)
+
+    # Add new blobs
+    blobs.add_blobs()  
 
     # Calculate offsets to center player
     offset_x = SCREEN_WIDTH / 2 - plr.x
