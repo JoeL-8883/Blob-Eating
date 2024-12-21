@@ -70,7 +70,7 @@ class Player:
             return True
 
     def can_eat_player(self, player):
-        if self.distance(player.x, player.y) < 0.7*self.radius and (self.size > player.size * 1.3):
+        if self.distance(player.x, player.y) < self.radius and (self.size > player.size * 1.3):
             return True
     
     def eat(self, food):
@@ -81,6 +81,5 @@ class Player:
     def decay(self):
         if self.size > self.decay_size:
             self.size -= self.size/18500
-            print(self.size/18500)
             self.radius = math.sqrt(self.size / math.pi)
             

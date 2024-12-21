@@ -8,6 +8,9 @@ class Bot_Generator:
         self.bots = []
         self.generate_bots(radius, speed, map_size)
         self.respawn = respawn
+        self.map_size = map_size
+        self.radius = radius
+        self.speed = speed
 
     def __getitem__(self, index):
         return self.bots[index]
@@ -29,7 +32,7 @@ class Bot_Generator:
         self.num_bots -= 1
 
         if self.respawn:
-            bot = Bot(random.uniform(0, self.map_size), random.uniform(0, self.map_size), bot.radius, bot.colour, bot.speed, bot.name)
+            bot = Bot(random.uniform(0, self.map_size), random.uniform(0, self.map_size), self.radius, bot.colour, self.speed, bot.name)
             self.bots.append(bot)
             self.num_bots = len(self.bots)
 

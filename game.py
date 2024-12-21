@@ -14,7 +14,6 @@ pygame.init()
 pygame.font.init()
 
 # Screen / viewport dimensions
-ZOOM = 0.5
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -35,13 +34,14 @@ PLAYER_LABEL = "Joe"
 # Create a player
 player_x = random.uniform(0, MAP_SIZE)
 player_y = random.uniform(0, MAP_SIZE)
-player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
+player = Player(player_x, player_y, PLAYER_RADIUS*10, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
+NUM_BOTS = 10
+bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 800 # Maximum number of blobs
+BLOB_COUNT = 300 # Maximum number of blobs
 EATEN = 0
 EATEN_PLAYERS = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
@@ -110,8 +110,8 @@ while running:
         bot.decay()
 
     # Calculate offsets to center player
-    offset_x = (SCREEN_WIDTH / 2) - (player_x * ZOOM)
-    offset_y = (SCREEN_HEIGHT / 2) - (player_y * ZOOM)
+    offset_x = SCREEN_WIDTH / 2 - player.x
+    offset_y = SCREEN_HEIGHT / 2 - player.y
 
     # DRAWING
     screen.fill((240, 240, 240))  # background
@@ -137,13 +137,13 @@ while running:
 
     # Draw blobs
     for blob in blobs_list:
-        pygame.draw.circle(screen, blob.colour, (blob.x * ZOOM + offset_x, blob.y * ZOOM + offset_y), int(blob.radius))
+        pygame.draw.circle(screen, blob.colour, (blob.x + offset_x, blob.y + offset_y), int(blob.radius))
     
     # Draw player
-    player.draw(screen, SCREEN_HEIGHT/2, SCREEN_HEIGHT/2)
+    player.draw(screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     
     for bot in bots:
-        bot.draw(screen, bot.x * ZOOM + offset_x, bot.y * ZOOM + offset_y)
+        bot.draw(screen, bot.x + offset_x, bot.y + offset_y)
     
     # Update display
     pygame.display.flip()
