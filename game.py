@@ -1,6 +1,7 @@
 import pygame
 import random
 import colours
+import keys
 from Player import Player
 from Blob import Blob
 from Bot import Bot
@@ -13,8 +14,9 @@ pygame.init()
 pygame.font.init()
 
 # Screen / viewport dimensions
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+ZOOM = 0.5
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("AI Blob Eating")
 
@@ -31,9 +33,9 @@ PLAYER_SPEED = 7.5
 PLAYER_LABEL = "Joe"
 
 # Create a player
-player_x = MAP_SIZE / 2
-player_y = MAP_SIZE / 2
-plr = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
+player_x = random.uniform(0, MAP_SIZE)
+player_y = random.uniform(0, MAP_SIZE)
+player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
 
 # Create bots
 bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
@@ -50,47 +52,18 @@ running = True
 while running:
     clock.tick(60)  # Target 60 fps
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key in (pygame.K_w, pygame.K_UP):
-                move_up = True
-            if event.key in (pygame.K_s, pygame.K_DOWN):
-                move_down = True
-            if event.key in (pygame.K_a, pygame.K_LEFT):
-                move_left = True
-            if event.key in (pygame.K_d, pygame.K_RIGHT):
-                move_right = True
-        elif event.type == pygame.KEYUP:
-            if event.key in (pygame.K_w, pygame.K_UP):
-                move_up = False
-            if event.key in (pygame.K_s, pygame.K_DOWN):
-                move_down = False
-            if event.key in (pygame.K_a, pygame.K_LEFT):
-                move_left = False
-            if event.key in (pygame.K_d, pygame.K_RIGHT):
-                move_right = False
+    # Handles key presses
+    running, move_up, move_down, move_left, move_right = keys.keys(pygame, running, move_up, move_down, move_left, move_right)
 
     blobs_list = blobs.get_blobs() # Find a way to make this better?
 
-
-    # Move the player
-    dx = dy = 0
-    if move_up:
-        dy -= plr.speed * (25 / plr.radius)  # Slow down as player grows
-    if move_down:
-        dy += plr.speed * (25 / plr.radius)
-    if move_left:
-        dx -= plr.speed * (25 / plr.radius)
-    if move_right:
-        dx += plr.speed * (25 / plr.radius)
+    # Calculate speed based off which key is pressed
+    dx, dy = player.velocity(move_up, move_down, move_left, move_right)
 
     # Update player position
-    plr.move(dx, dy, MAP_SIZE)
+    player.move(dx, dy, MAP_SIZE)
 
     # Bot movement
-    closest_blob = bots[0].search_blob(blobs_list)
     for bot in bots:
         closest_blob = bot.search_blob(blobs_list)
         bot.move_to_blob(closest_blob, MAP_SIZE)
@@ -100,8 +73,8 @@ while running:
     for i, blob in enumerate(blobs_list):
         if i in eaten_blobs:
             continue
-        elif plr.can_eat_blob(blob):
-            plr.eat(blob)
+        elif player.can_eat_blob(blob):
+            player.eat(blob)
             EATEN += 1
             eaten_blobs.append(i)
         
@@ -115,9 +88,8 @@ while running:
                 eaten_blobs.append(i)
 
     for bot in bots:
-        if plr.can_eat_player(bot):
-            plr.eat(bot)
-            print("Player has eaten a bot")
+        if player.can_eat_player(bot):
+            player.eat(bot)
             bots.kill_bot(bot)
             break
 
@@ -130,9 +102,15 @@ while running:
     # Add new blobs
     blobs.add_blobs()  
 
+    # Decay players size
+    player.decay()
+    for bot in bots.get_bots():
+        bot.decay()
+
     # Calculate offsets to center player
-    offset_x = SCREEN_WIDTH / 2 - plr.x
-    offset_y = SCREEN_HEIGHT / 2 - plr.y
+    offset_x = (SCREEN_WIDTH / 2 - player.x) 
+    offset_y = (SCREEN_HEIGHT / 2 - player.y)
+
 
     # DRAWING
     screen.fill((240, 240, 240))  # background
@@ -164,8 +142,8 @@ while running:
         pygame.draw.circle(screen, blob.colour, (blob.x + offset_x, blob.y + offset_y), int(blob.radius))
     
     # Draw player
-    #pygame.draw.circle(screen, plr.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(plr.radius))
-    plr.draw(screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    #pygame.draw.circle(screen, player.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(player.radius))
+    player.draw(screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     
     for bot in bots:
         bot.draw(screen, bot.x + offset_x, bot.y + offset_y)

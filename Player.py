@@ -1,8 +1,9 @@
 import pygame
 import math
+import random
 
 class Player:
-    def __init__(self, x, y, radius, colour, speed, name):
+    def __init__(self, x, y, radius, colour, speed, name, decay_size=50000):
         self.x = x
         self.y = y
         self.radius = radius
@@ -11,6 +12,20 @@ class Player:
         self.speed = speed
         self.name = name
         self.font = pygame.font.SysFont("arial", self.font_size())
+        self.decay_size = decay_size
+    
+    def velocity(self, move_up, move_down, move_left, move_right):
+        dx = dy = 0
+        if move_up:
+            dy -= self.speed * (25 / self.radius)
+        if move_down:
+            dy += self.speed * (25 / self.radius)
+        if move_left:
+            dx -= self.speed * (25 / self.radius)
+        if move_right:
+            dx += self.speed * (25 / self.radius)
+        return dx, dy
+
 
     def move(self, dx, dy, map_size):
         self.x += dx
@@ -46,10 +61,6 @@ class Player:
         label_surface = self.font.render(self.name, True, (255, 255, 255))
         label_rect = label_surface.get_rect(center=(x, y))
         screen.blit(label_surface, label_rect.topleft)
-
-        
-
-    
     
     def distance(self, x, y):
         return math.sqrt((self.x - x) ** 2 + (self.y - y) ** 2)
@@ -59,7 +70,7 @@ class Player:
             return True
 
     def can_eat_player(self, player):
-        if self.distance(player.x, player.y) < self.radius and (self.size > player.size * 1.50):
+        if self.distance(player.x, player.y) < 0.7*self.radius and (self.size > player.size * 1.3):
             return True
     
     def eat(self, food):
@@ -68,7 +79,8 @@ class Player:
         self.font = pygame.font.SysFont("arial", self.font_size())
 
     def decay(self):
-        if self.size > 50:
-            self.size -= 0.1
+        if self.size > self.decay_size:
+            self.size -= self.size/18500
+            print(self.size/18500)
             self.radius = math.sqrt(self.size / math.pi)
             
