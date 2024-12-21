@@ -43,6 +43,7 @@ bots = Bot_Generator(10, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE)
 # Generate collectible blobs -- will move to the while loop eventually
 BLOB_COUNT = 800 # Maximum number of blobs
 EATEN = 0
+EATEN_PLAYERS = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
 
 # Movement keys state
@@ -91,6 +92,7 @@ while running:
         if player.can_eat_player(bot):
             player.eat(bot)
             bots.kill_bot(bot)
+            EATEN_PLAYERS += 1
             break
 
     if len(eaten_blobs) > 0:
@@ -108,13 +110,11 @@ while running:
         bot.decay()
 
     # Calculate offsets to center player
-    offset_x = (SCREEN_WIDTH / 2 - player.x) 
-    offset_y = (SCREEN_HEIGHT / 2 - player.y)
-
+    offset_x = (SCREEN_WIDTH / 2) - (player_x * ZOOM)
+    offset_y = (SCREEN_HEIGHT / 2) - (player_y * ZOOM)
 
     # DRAWING
     screen.fill((240, 240, 240))  # background
-
     grid_color = (220, 220, 220)  # Light gray
     grid_spacing = 100  # Space between grid lines
 
@@ -130,8 +130,6 @@ while running:
                         (offset_x, y + offset_y),
                         (MAP_SIZE + offset_x, y + offset_y))
 
-
-
     # Draw map boundary (optional visualization)
     # Just draw a large rectangle representing the map boundary
     boundary_color = (100, 100, 100)
@@ -139,15 +137,13 @@ while running:
 
     # Draw blobs
     for blob in blobs_list:
-        pygame.draw.circle(screen, blob.colour, (blob.x + offset_x, blob.y + offset_y), int(blob.radius))
+        pygame.draw.circle(screen, blob.colour, (blob.x * ZOOM + offset_x, blob.y * ZOOM + offset_y), int(blob.radius))
     
     # Draw player
-    #pygame.draw.circle(screen, player.colour, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)), int(player.radius))
-    player.draw(screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    player.draw(screen, SCREEN_HEIGHT/2, SCREEN_HEIGHT/2)
     
     for bot in bots:
-        bot.draw(screen, bot.x + offset_x, bot.y + offset_y)
-    
+        bot.draw(screen, bot.x * ZOOM + offset_x, bot.y * ZOOM + offset_y)
     
     # Update display
     pygame.display.flip()
