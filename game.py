@@ -34,10 +34,10 @@ PLAYER_LABEL = "Joe"
 # Create a player
 player_x = random.uniform(0, MAP_SIZE)
 player_y = random.uniform(0, MAP_SIZE)
-player = Player(player_x, player_y, PLAYER_RADIUS*10, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
+player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 10
+NUM_BOTS = 0
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
@@ -88,6 +88,16 @@ while running:
                 EATEN += 1
                 eaten_blobs.append(i)
 
+        # If the blob should die kill it
+        if blob.die():
+            eaten_blobs.append(i)
+        
+    if len(eaten_blobs) > 0:
+        # Remove eaten blobs
+        while len(eaten_blobs) > 0:
+            i = eaten_blobs.pop()
+            blobs_list.pop(i)
+    
     for bot in bots:
         if player.can_eat_player(bot):
             player.eat(bot)
@@ -95,11 +105,7 @@ while running:
             EATEN_PLAYERS += 1
             break
 
-    if len(eaten_blobs) > 0:
-        # Remove eaten blobs
-        while len(eaten_blobs) > 0:
-            i = eaten_blobs.pop()
-            blobs_list.pop(i)
+    
 
     # Add new blobs
     blobs.add_blobs()  
