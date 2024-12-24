@@ -23,7 +23,7 @@ pygame.display.set_caption("AI Blob Eating")
 clock = pygame.time.Clock()
 
 # Map size (larger than the viewport)
-MAP_SIZE = 3000
+MAP_SIZE = 6000 # 3000
 
 # Constants for player attributes
 PLAYER_RADIUS = 30
@@ -37,11 +37,11 @@ player_y = random.uniform(0, MAP_SIZE)
 player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 0
+NUM_BOTS = 20
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 300 # Maximum number of blobs
+BLOB_COUNT = 10 # Maximum number of blobs
 EATEN = 0
 EATEN_PLAYERS = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
