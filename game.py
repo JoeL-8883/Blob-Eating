@@ -37,7 +37,7 @@ player_y = random.uniform(0, MAP_SIZE)
 player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 0
+NUM_BOTS = 10
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually

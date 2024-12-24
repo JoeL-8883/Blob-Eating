@@ -13,17 +13,20 @@ class Player:
         self.name = name
         self.font = pygame.font.SysFont("arial", self.font_size())
         self.decay_size = decay_size
-    
+
+    def movement_speed(self):
+        return self.speed * (25 / self.radius)
+
     def velocity(self, move_up, move_down, move_left, move_right):
         dx = dy = 0
         if move_up:
-            dy -= self.speed * (25 / self.radius)
+            dy -= self.movement_speed()
         if move_down:
-            dy += self.speed * (25 / self.radius)
+            dy += self.movement_speed()
         if move_left:
-            dx -= self.speed * (25 / self.radius)
+            dx -= self.movement_speed()
         if move_right:
-            dx += self.speed * (25 / self.radius)
+            dx += self.movement_speed()
         return dx, dy
 
 
