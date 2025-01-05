@@ -52,23 +52,34 @@ move_up = move_down = move_left = move_right = False
 running = True
 while running:
     clock.tick(60)  # Target 60 fps
+    blobs_list = blobs.get_blobs() # Find a way to make this better?
 
     # Handles key presses
     running, move_up, move_down, move_left, move_right = keys.keys(pygame, running, move_up, move_down, move_left, move_right)
-
-    blobs_list = blobs.get_blobs() # Find a way to make this better?
-
     # Calculate speed based off which key is pressed
     dx, dy = player.velocity(move_up, move_down, move_left, move_right)
-
     # Update player position
     player.move(dx, dy, MAP_SIZE)
-
+   
     # Bot movement
     for bot in bots:
-        closest_blob = bot.search_blob(blobs_list)
-        bot.move_to_blob(closest_blob, MAP_SIZE)
+        closest_blob = bot.search_closest(blobs_list)
+        closest_bot = bot.search_closest(bots.get_bots())
 
+        # Decide what object to go for
+        # if the bot is smaller then decide whether to hunt based on distance and aggressiveness
+        print(bot.size, closest_bot.size)
+        if bot.size > closest_bot.size*1.25:
+            hunt_check = 50
+            hunt_calculation = bot.aggressiveness * bot.distance(closest_bot.x, closest_bot.y) / 15
+            if hunt_calculation > hunt_check:
+                bot.move_to_object(closest_bot, MAP_SIZE)
+            else:
+                bot.move_to_object(closest_blob, MAP_SIZE)
+        else:
+            bot.move_to_object(closest_blob, MAP_SIZE)
+        # if the bot is bigger then decide whether to run based on distance and aggressiveness
+   
     # Check if blob has been eaten already for optimisation
     eaten_blobs = []
     for i, blob in enumerate(blobs_list):
@@ -104,8 +115,6 @@ while running:
             bots.kill_bot(bot)
             EATEN_PLAYERS += 1
             break
-
-    
 
     # Add new blobs
     blobs.add_blobs()  

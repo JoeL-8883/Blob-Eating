@@ -12,6 +12,7 @@ class Bot(Player):
         self.time_random_move = 0
         self.dx = 0
         self.dy = 0
+        self.aggressiveness = 0
 
     def move(self, dx, dy, map_size):
         super().move(dx, dy, map_size)
@@ -25,40 +26,41 @@ class Bot(Player):
     def eat_blob(self, blob):
         super().eat_blob(blob)
 
+    def distance(self, x, y):
+        return super().distance(x, y)
+
     def is_visible(self, object):
-        return super().distance(object.x, object.y) < self.visibility
+        return self.distance(object.x, object.y) < self.visibility
     
     def update_visbiility(self):
-        print("Updating visibility")
         return self.radius * 3
 
-    # Code to find blobs - closest blob
-    def search_blob(self, blobs):
-        closest_blob = None
-        for blob in blobs:
-            if self.is_visible(blob):
-                if closest_blob is None:
-                    closest_blob = blob
+    # Code to find closest blob or players
+    def search_closest(self, objects):
+        closest = None
+        for object in objects:
+            if self.is_visible(object):
+                if closest is None:
+                    closest = object
                 else:
-                    distance = super().distance(blob.x, blob.y)
-                    if distance < super().distance(closest_blob.x, closest_blob.y):
-                        closest_blob = blob
-        return closest_blob
-    
-    def move_to_blob(self, closest_blob, map_size):
-        if not closest_blob:
+                    distance = self.distance(object.x, object.y)
+                    if distance < self.distance(closest.x, closest.y):
+                        closest = object
+        return closest
+
+    def move_to_object(self, closest, map_size):
+        if not closest:
             if time.time() - self.time_random_move > self.random_move_time:
                 self.time_random_move = time.time()
                 self.dx = random.uniform(-1, 1) * super().movement_speed() * 1.25
                 self.dy = random.uniform(-1, 1) * super().movement_speed() * 1.25
         else:
             # Get the distance between the bot and the closest blob
-            distance_x = closest_blob.x - self.x
-            distance_y = closest_blob.y - self.y
+            distance_x = closest.x - self.x
+            distance_y = closest.y - self.y
             distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
             # Normalise distance to get direction vector
-            
             if distance != 0:
                 direction_x = distance_x / distance
                 direction_y = distance_y / distance
@@ -67,6 +69,9 @@ class Bot(Player):
             self.dx = direction_x * self.speed * (25 / self.radius)
             self.dy = direction_y * self.speed * (25 / self.radius)
     
-        super().move(self.dx, self.dy, map_size)
+        self.move(self.dx, self.dy, 1000) # Use map_size instead if there are boundary issues
 
+    def hunt(self, closest_bot):
+        if self.size > closest_bot.size:
+            self.move_to_object(closest_bot, 1000) # Use map_size instead if there are boundary issues
 
