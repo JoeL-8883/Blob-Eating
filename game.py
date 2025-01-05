@@ -68,16 +68,28 @@ while running:
 
         # Decide what object to go for
         # if the bot is smaller then decide whether to hunt based on distance and aggressiveness
-        print(bot.size, closest_bot.size)
-        if bot.size > closest_bot.size*1.25:
+        if bot.size > closest_bot.size*1.3:
             hunt_check = 50
+            print("yay")
             hunt_calculation = bot.aggressiveness * bot.distance(closest_bot.x, closest_bot.y) / 15
             if hunt_calculation > hunt_check:
                 bot.move_to_object(closest_bot, MAP_SIZE)
             else:
                 bot.move_to_object(closest_blob, MAP_SIZE)
         else:
+            print(bot.x, bot.y, closest_bot.x, closest_bot.y)
             bot.move_to_object(closest_blob, MAP_SIZE)
+         
+        '''
+        elif bot.size < closest_bot.size*1.2:
+            run_check = 50
+            run_calculation = bot.agressiveness * bot.distance(closest_bot.x, closest_bot.y) / 15
+            if run_calculation > run_check:
+                print(0) # code to run away from a bot/player
+            else:
+                bot.move_to_object(closest_blob, MAP_SIZE)
+        '''
+        
         # if the bot is bigger then decide whether to run based on distance and aggressiveness
    
     # Check if blob has been eaten already for optimisation

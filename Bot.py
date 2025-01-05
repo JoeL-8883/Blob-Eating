@@ -33,7 +33,7 @@ class Bot(Player):
         return self.distance(object.x, object.y) < self.visibility
     
     def update_visbiility(self):
-        return self.radius * 3
+        return self.radius * 5
 
     # Code to find closest blob or players
     def search_closest(self, objects):
@@ -49,13 +49,14 @@ class Bot(Player):
         return closest
 
     def move_to_object(self, closest, map_size):
+        # If there is no object directing the bots movement then move randomly
         if not closest:
             if time.time() - self.time_random_move > self.random_move_time:
                 self.time_random_move = time.time()
                 self.dx = random.uniform(-1, 1) * super().movement_speed() * 1.25
                 self.dy = random.uniform(-1, 1) * super().movement_speed() * 1.25
+        # Move towards object that is closest
         else:
-            # Get the distance between the bot and the closest blob
             distance_x = closest.x - self.x
             distance_y = closest.y - self.y
             distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
@@ -65,7 +66,7 @@ class Bot(Player):
                 direction_x = distance_x / distance
                 direction_y = distance_y / distance
             
-            # Velocity vector to move bot towards blob
+            # Velocity vector to move bot towards object
             self.dx = direction_x * self.speed * (25 / self.radius)
             self.dy = direction_y * self.speed * (25 / self.radius)
     
