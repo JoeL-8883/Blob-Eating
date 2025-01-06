@@ -12,6 +12,7 @@ class Bot(Player):
         self.time_random_move = 0
         self.dx = 0
         self.dy = 0
+        self.smoothing = 0.4
 
     def move(self, dx, dy, map_size):
         super().move(dx, dy, map_size)
@@ -22,8 +23,8 @@ class Bot(Player):
     def can_eat_blob(self, blob):
         return super().can_eat_blob(blob)
 
-    def eat_blob(self, blob):
-        super().eat_blob(blob)
+    def eat(self, object):
+        super().eat(object)
 
     def is_visible(self, object):
         return super().distance(object.x, object.y) < self.visibility
@@ -35,11 +36,12 @@ class Bot(Player):
     def search_closest(self, objects):
         closest = None
         for object in objects:
+            if object == self: # Prevent the bot from thinking itself is the closest object
+                continue
             if self.is_visible(object):
                 if closest is None:
                     closest = object
                 else:
-                    print("found closest")
                     distance = super().distance(object.x, object.y)
                     if distance < super().distance(closest.x, closest.y):
                         closest = object
@@ -65,9 +67,44 @@ class Bot(Player):
                 direction_y = distance_y / distance
             
             # Velocity vector to move bot towards object
-            self.dx = direction_x * self.speed * (25 / self.radius)
-            self.dy = direction_y * self.speed * (25 / self.radius)
+            dx = direction_x * self.speed * (25 / self.radius)
+            dy = direction_y * self.speed * (25 / self.radius)
+
+            self.dx = self.dx * (1 - self.smoothing) + dx * self.smoothing
+            self.dy = self.dy * (1 - self.smoothing) + dy * self.smoothing
+
     
         super().move(self.dx, self.dy, map_size)
+    
+    def move_away(self, closest, map_size):
+        # Get the distance between the bot and the closest
+        distance_x = closest.x - self.x
+        distance_y = closest.y - self.y
+        distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+
+        # Normalise distance to get direction vector
+        if distance != 0:
+            direction_x = distance_x / distance
+            direction_y = distance_y / distance
+            angle = random.uniform(-math.pi/4, math.pi/4)
+            rotated_x = (direction_x * math.cos(angle) - 
+                    direction_y * math.sin(angle))
+            rotated_y = (direction_x * math.sin(angle) + 
+                    direction_y * math.cos(angle))
+
+
+        # Velocity vector to move bot away from object
+        dx = -rotated_x * self.speed * (25 / self.radius)
+        dy = -rotated_y * self.speed * (25 / self.radius)
+
+        self.dx = self.dx * (1 - self.smoothing) + dx * self.smoothing
+        self.dy = self.dy * (1 - self.smoothing) + dy * self.smoothing
+        
+        super().move(self.dx, self.dy, map_size)
+
+    def can_eat_player(self, player):
+        return super().can_eat_player(player)
+    
+    
 
 
