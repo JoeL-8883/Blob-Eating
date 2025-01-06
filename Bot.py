@@ -32,29 +32,30 @@ class Bot(Player):
         print("Updating visibility")
         return self.radius * 3
 
-    # Code to find blobs - closest blob
-    def search_blob(self, blobs):
-        closest_blob = None
-        for blob in blobs:
-            if self.is_visible(blob):
-                if closest_blob is None:
-                    closest_blob = blob
+    def search_closest(self, objects):
+        closest = None
+        for object in objects:
+            if self.is_visible(object):
+                if closest is None:
+                    closest = object
                 else:
-                    distance = super().distance(blob.x, blob.y)
-                    if distance < super().distance(closest_blob.x, closest_blob.y):
-                        closest_blob = blob
-        return closest_blob
+                    print("found closest")
+                    distance = super().distance(object.x, object.y)
+                    if distance < super().distance(closest.x, closest.y):
+                        closest = object
+        return closest
     
-    def move_to_blob(self, closest_blob, map_size):
-        if not closest_blob:
+    def move_to(self, closest, map_size):
+        # Move the bot in a random direction for a set time
+        if not closest:
             if time.time() - self.time_random_move > self.random_move_time:
                 self.time_random_move = time.time()
                 self.dx = random.uniform(-1, 1) * super().movement_speed() * 1.25
                 self.dy = random.uniform(-1, 1) * super().movement_speed() * 1.25
         else:
-            # Get the distance between the bot and the closest blob
-            distance_x = closest_blob.x - self.x
-            distance_y = closest_blob.y - self.y
+            # Get the distance between the bot and the closest
+            distance_x = closest.x - self.x
+            distance_y = closest.y - self.y
             distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
             # Normalise distance to get direction vector
@@ -63,7 +64,7 @@ class Bot(Player):
                 direction_x = distance_x / distance
                 direction_y = distance_y / distance
             
-            # Velocity vector to move bot towards blob
+            # Velocity vector to move bot towards object
             self.dx = direction_x * self.speed * (25 / self.radius)
             self.dy = direction_y * self.speed * (25 / self.radius)
     

@@ -37,7 +37,7 @@ player_y = random.uniform(0, MAP_SIZE)
 player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 10
+NUM_BOTS = 1
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
@@ -66,8 +66,11 @@ while running:
 
     # Bot movement
     for bot in bots:
-        closest_blob = bot.search_blob(blobs_list)
-        bot.move_to_blob(closest_blob, MAP_SIZE)
+        closest_blob = bot.search_closest(blobs_list)
+        #closest_bot = bot.search_closest(bots.get_bots())
+        bot.move_to(closest_blob, MAP_SIZE)
+        
+
 
     # Check if blob has been eaten already for optimisation
     eaten_blobs = []
