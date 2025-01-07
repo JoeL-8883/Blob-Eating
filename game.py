@@ -7,6 +7,7 @@ from Blob import Blob
 from Bot import Bot
 from Bot_Generator import Bot_Generator
 from Blob_Generator import Blob_Generator
+from Clock import Clock
 
 
 # Initialize Pygame
@@ -37,7 +38,7 @@ player_y = random.uniform(0, MAP_SIZE)
 player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 10
+NUM_BOTS = 20
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
@@ -50,7 +51,9 @@ blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
 move_up = move_down = move_left = move_right = False
 
 running = True
+game_clock = Clock()
 while running:
+    game_clock.update()
     clock.tick(60)  # Target 60 fps
 
     # Handles key presses
@@ -64,27 +67,36 @@ while running:
     # Update player position
     player.move(dx, dy, MAP_SIZE)
 
-    # Bot movement
+    # Bot hunting
+    '''To get this working, I'll need to design and implement the following 
+        - intelligence/aggression system
+        - correct movement based on surroundings
+        - fix glitchy movement
+        - eventually I'll induce some form of utility where the bots make decisions based on what they can see, i.e. hunt for larger blobs
+    '''
     for bot in bots:
         closest_blob = bot.search_closest(blobs_list)
         closest_bot = bot.search_closest(bots.get_bots())
 
         if closest_bot:
-            if (closest_bot.size < 5*bot.size) and (bot.size < closest_bot.size*1.15):
+            if bot.should_flee(closest_bot):
                 bot.move_away(closest_bot, MAP_SIZE)
-            elif  (closest_bot.size > bot.size/8) and (bot.size > closest_bot.size*1.3):
+            elif bot.should_hunt(closest_bot):
                 bot.move_to(closest_bot, MAP_SIZE)
-                if bot.can_eat_player(closest_bot):
-                    bot.eat(closest_bot)
-                    bots.kill_bot(closest_bot)
-                    EATEN_PLAYERS += 1
-                    print(bot.name, " ate " , closest_bot.name)
-            
             else:
                 bot.move_to(closest_blob, MAP_SIZE)        
         else:
             bot.move_to(closest_blob, MAP_SIZE)
-          
+
+      
+        for eat_bot in bots:
+            if eat_bot == bot:
+                continue
+            if bot.can_eat_player(eat_bot):
+                bot.eat(eat_bot)
+                bots.kill_bot(eat_bot)
+                EATEN_PLAYERS += 1
+                print(bot.name, " ate " , eat_bot.name)
 
 
     # Check if blob has been eaten already for optimisation
@@ -93,9 +105,10 @@ while running:
         if i in eaten_blobs:
             continue
         elif player.can_eat_blob(blob):
-            player.eat(blob)
-            EATEN += 1
-            eaten_blobs.append(i)
+            pass
+            #player.eat(blob)
+            #EATEN += 1
+            #eaten_blobs.append(i)
         
         # Check if bots can eat blob
         for bot in bots:
@@ -118,9 +131,9 @@ while running:
     
     for bot in bots:
         if player.can_eat_player(bot):
-            player.eat(bot)
-            bots.kill_bot(bot)
-            EATEN_PLAYERS += 1
+            #player.eat(bot)
+            #bots.kill_bot(bot)
+            #EATEN_PLAYERS += 1 
             break
 
     # Add new blobs
