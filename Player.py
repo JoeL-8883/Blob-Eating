@@ -15,7 +15,7 @@ class Player:
         self.decay_size = decay_size
 
     def movement_speed(self):
-        return self.speed * (25 / self.radius)
+        return self.speed * (25 / self.radius*0.8)
 
     def velocity(self, move_up, move_down, move_left, move_right):
         dx = dy = 0

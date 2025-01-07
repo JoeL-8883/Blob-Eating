@@ -36,6 +36,9 @@ class Bot(Player):
     
     def update_visbiility(self):
         self.visibility = self.size/4
+
+    def movement_speed(self):
+        return super().movement_speed()
     
     def search_closest(self, objects):
         closest = None
@@ -71,8 +74,8 @@ class Bot(Player):
                 direction_y = distance_y / distance
             
             # Velocity vector to move bot towards object
-            dx = direction_x * self.speed * (25 / self.radius)
-            dy = direction_y * self.speed * (25 / self.radius)
+            dx = direction_x * self.movement_speed()
+            dy = direction_y * self.movement_speed()
 
             self.dx = self.dx * (1 - self.smoothing) + dx * self.smoothing
             self.dy = self.dy * (1 - self.smoothing) + dy * self.smoothing
@@ -93,17 +96,11 @@ class Bot(Player):
         if distance != 0:
             direction_x = distance_x / distance
             direction_y = distance_y / distance
-            angle = random.uniform(-math.pi/4, math.pi/4)
-            rotated_x = (direction_x * math.cos(angle) - 
-                    direction_y * math.sin(angle))
-            rotated_y = (direction_x * math.sin(angle) + 
-                    direction_y * math.cos(angle))
-
-
+     
         # Velocity vector to move bot away from object
-        dx = self.speed * (25 / self.radius) # * (-rotated_x)
-        dy = self.speed * (25 / self.radius) # * (-rotated_y)
-
+        dx = direction_x * self.movement_speed()
+        dy = direction_y * self.movement_speed()
+        
         self.dx = self.dx * (1 - self.smoothing) + dx * self.smoothing
         self.dy = self.dy * (1 - self.smoothing) + dy * self.smoothing
         
@@ -113,9 +110,9 @@ class Bot(Player):
         return super().can_eat_player(player)
     
     def should_flee(self, hunter):
-        too_large = hunter.size > 6*self.size
-        is_smaller = self.size < hunter.size*1.15
-        is_too_close = super().distance(hunter.x, hunter.y) + hunter.radius < (self.visibility)
+        too_large = hunter.size > 10*self.size
+        is_smaller = self.size < hunter.size*1.1
+        is_too_close = super().distance(hunter.x, hunter.y) + hunter.radius < (self.visibility*1.2)
         return too_large and is_smaller and is_too_close
     
     def should_hunt(self, prey):

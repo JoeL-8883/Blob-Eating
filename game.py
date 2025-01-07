@@ -35,11 +35,11 @@ PLAYER_LABEL = "Joe"
 # Create a player
 player_x = random.uniform(0, MAP_SIZE)
 player_y = random.uniform(0, MAP_SIZE)
-player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
+player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED, PLAYER_LABEL)
 
 # Create bots
 NUM_BOTS = 20
-bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
+bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True, player)
 
 # Generate collectible blobs -- will move to the while loop eventually
 BLOB_COUNT = 300 # Maximum number of blobs
@@ -75,6 +75,9 @@ while running:
         - eventually I'll induce some form of utility where the bots make decisions based on what they can see, i.e. hunt for larger blobs
     '''
     for bot in bots:
+        if bot == player:
+            continue
+        
         closest_blob = bot.search_closest(blobs_list)
         closest_bot = bot.search_closest(bots.get_bots())
 
@@ -105,10 +108,9 @@ while running:
         if i in eaten_blobs:
             continue
         elif player.can_eat_blob(blob):
-            pass
-            #player.eat(blob)
-            #EATEN += 1
-            #eaten_blobs.append(i)
+            player.eat(blob)
+            EATEN += 1
+            eaten_blobs.append(i)
         
         # Check if bots can eat blob
         for bot in bots:
@@ -131,9 +133,9 @@ while running:
     
     for bot in bots:
         if player.can_eat_player(bot):
-            #player.eat(bot)
-            #bots.kill_bot(bot)
-            #EATEN_PLAYERS += 1 
+            player.eat(bot)
+            bots.kill_bot(bot)
+            EATEN_PLAYERS += 1 
             break
 
     # Add new blobs

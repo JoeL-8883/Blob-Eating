@@ -3,13 +3,14 @@ import colours
 from Bot import Bot
 
 class Bot_Generator:
-    def __init__(self, num_bots, radius, speed, map_size, respawn=False):
+    def __init__(self, num_bots, radius, speed, map_size, respawn=False, player=None):
         self.num_bots = num_bots
         self.bots = []
         self.respawn = respawn
         self.map_size = map_size
         self.radius = radius
         self.speed = speed
+        self.player = player
 
         try:
             with open("names.txt", "r") as f:
@@ -42,10 +43,18 @@ class Bot_Generator:
                 
             bot = Bot(bot_x, bot_y, radius, colour, speed, name)
             self.bots.append(bot)
+        
+        if self.player:
+            self.bots.append(self.player)
+            self.num_bots += 1
     
     def kill_bot(self, bot):
         self.bots.remove(bot)
         self.num_bots -= 1
+
+        if bot == self.player:
+            print("Game Over")
+            exit()
 
         if self.respawn:
             bot = Bot(random.uniform(0, self.map_size), random.uniform(0, self.map_size), self.radius, bot.colour, self.speed, bot.name)
