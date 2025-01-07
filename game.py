@@ -29,7 +29,7 @@ MAP_SIZE = 3000
 # Constants for player attributes
 PLAYER_RADIUS = 30
 PLAYER_COLOR = colours.player()
-PLAYER_SPEED = 7.5
+PLAYER_SPEED = 10
 PLAYER_LABEL = "Joe"
 
 # Create a player
@@ -38,11 +38,11 @@ player_y = random.uniform(0, MAP_SIZE)
 player = Player(player_x, player_y, PLAYER_RADIUS, PLAYER_COLOR, PLAYER_SPEED*5, PLAYER_LABEL)
 
 # Create bots
-NUM_BOTS = 20
+NUM_BOTS = 50
 bots = Bot_Generator(NUM_BOTS, PLAYER_RADIUS, PLAYER_SPEED, MAP_SIZE, True)
 
 # Generate collectible blobs -- will move to the while loop eventually
-BLOB_COUNT = 300 # Maximum number of blobs
+BLOB_COUNT = 800 # Maximum number of blobs
 EATEN = 0
 EATEN_PLAYERS = 0
 blobs = Blob_Generator(MAP_SIZE, BLOB_COUNT)
@@ -96,7 +96,8 @@ while running:
                 bot.eat(eat_bot)
                 bots.kill_bot(eat_bot)
                 EATEN_PLAYERS += 1
-                print(bot.name, " ate " , eat_bot.name)
+                bot.kills += 1
+                print(bot.name, "({})".format(bot.kills), " killed " , eat_bot.name, "({})".format(eat_bot.kills))
 
 
     # Check if blob has been eaten already for optimisation

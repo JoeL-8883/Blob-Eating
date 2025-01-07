@@ -17,6 +17,7 @@ class Bot(Player):
         self.dy = 0
         self.smoothing = 0.4 # Higher smoothing means more responsive but more snappy
         self.clock = Clock()
+        self.kills = 0
 
     def move(self, dx, dy, map_size):
         super().move(dx, dy, map_size)
