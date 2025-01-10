@@ -8,6 +8,7 @@ from Bot import Bot
 from Bot_Generator import Bot_Generator
 from Blob_Generator import Blob_Generator
 from Clock import Clock
+from Leaderboard import Leaderboard
 
 
 # Initialize Pygame
@@ -31,6 +32,7 @@ PLAYER_RADIUS = 30
 PLAYER_COLOR = colours.player()
 PLAYER_SPEED = 10
 PLAYER_LABEL = "Joe"
+PLAYER_PLAYING = True
 
 # Create a player
 player_x = random.uniform(0, MAP_SIZE)
@@ -67,13 +69,7 @@ while running:
     # Update player position
     player.move(dx, dy, MAP_SIZE)
 
-    # Bot hunting
-    '''To get this working, I'll need to design and implement the following 
-        - intelligence/aggression system
-        - correct movement based on surroundings
-        - fix glitchy movement
-        - eventually I'll induce some form of utility where the bots make decisions based on what they can see, i.e. hunt for larger blobs
-    '''
+    # Bot movement - hunting/fleeing
     for bot in bots:
         closest_blob = bot.search_closest(blobs_list)
         closest_bot = bot.search_closest(bots.get_bots())
@@ -88,7 +84,7 @@ while running:
         else:
             bot.move_to(closest_blob, MAP_SIZE)
 
-      
+        # Check if bot has been eaten
         for eat_bot in bots:
             if eat_bot == bot:
                 continue
@@ -97,19 +93,16 @@ while running:
                 bots.kill_bot(eat_bot)
                 EATEN_PLAYERS += 1
                 bot.kills += 1
-                #print(bot.name, "({})".format(bot.kills), " killed " , eat_bot.name, "({})".format(eat_bot.kills))
 
-
-    # Check if blob has been eaten already for optimisation
+    # Check if blob has been eaten
     eaten_blobs = []
     for i, blob in enumerate(blobs_list):
         if i in eaten_blobs:
             continue
-        elif player.can_eat_blob(blob):
-            pass
-            #player.eat(blob)
-            #EATEN += 1
-            #eaten_blobs.append(i)
+        elif player.can_eat_blob(blob) and PLAYER_PLAYING:
+            player.eat(blob)
+            EATEN += 1
+            eaten_blobs.append(i)
         
         # Check if bots can eat blob
         for bot in bots:
@@ -130,12 +123,14 @@ while running:
             i = eaten_blobs.pop()
             blobs_list.pop(i)
     
-    for bot in bots:
-        if player.can_eat_player(bot):
-            #player.eat(bot)
-            #bots.kill_bot(bot)
-            #EATEN_PLAYERS += 1 
-            break
+    # Check if player can eat bot
+    if PLAYER_PLAYING:
+        for bot in bots:
+            if player.can_eat_player(bot):
+                player.eat(bot)
+                bots.kill_bot(bot)
+                EATEN_PLAYERS += 1 
+                break
 
     # Add new blobs
     blobs.add_blobs()  
@@ -181,6 +176,13 @@ while running:
     for bot in bots:
         bot.draw(screen, bot.x + offset_x, bot.y + offset_y)
     
+    # In game.py
+    leaderboard = Leaderboard()
+
+    # In game loop
+    leaderboard.update(player, bots)
+    leaderboard.draw(screen)
+
     # Update display
     pygame.display.flip()
 

@@ -13,6 +13,7 @@ class Player:
         self.name = name
         self.font = pygame.font.SysFont("arial", self.font_size())
         self.decay_size = decay_size
+        self.kills = 0
 
     def movement_speed(self):
         return self.speed * (25 / self.radius)
@@ -83,6 +84,6 @@ class Player:
 
     def decay(self):
         if self.size > self.decay_size:
-            self.size -= self.size/18500
+            self.size -= self.size/19000
             self.radius = math.sqrt(self.size / math.pi)
             
